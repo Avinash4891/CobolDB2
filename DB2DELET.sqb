@@ -43,7 +43,9 @@
       *> SQL declare variables
        EXEC SQL BEGIN DECLARE SECTION END-EXEC.
 
-       COPY "EMPLOYEE.cpy"
+         EXEC SQL
+            INCLUDE "EMPLOYEE.cpy"
+         END-EXEC
 
        EXEC SQL END   DECLARE SECTION END-EXEC.
 
