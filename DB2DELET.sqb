@@ -1,0 +1,139 @@
+      *>************************************************************************
+      *>  SAMPLE DB2 DELETE PROGRAM
+      *>************************************************************************
+
+      *>************************************************************************
+      *> Program:      DB2DELET.sqb
+      *>
+      *> Purpose:      DB2 DELET Module
+      *>
+      *> Author:       AVINASH KUMAR
+      *>
+      *> Date-Written: 2021.03.01
+      *>
+      *>
+      *>               Implemented features:
+      *>               - DELETE DB2
+      *>               - TABLE EMPLOYEE
+      *>
+      *>************************************************************************
+      *> Date       Name / Change description
+      *> ========== ============================================================
+      *> 2021.03.01 Avinash Kumar
+      *>            - FIRST VERSION.
+      *>************************************************************************
+
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. DB2DELET.
+
+       ENVIRONMENT DIVISION.
+
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+
+      *> SQL communication area
+       COPY "sqlca.cpy".
+
+      *> SQL status
+       01 WS-SQL-STATUS                PIC S9(9) COMP-5.
+          88 SQL-STATUS-OK             VALUE    0.
+          88 SQL-STATUS-NOT-FOUND      VALUE  100.
+          88 SQL-STATUS-DUP            VALUE -803.
+
+      *> SQL declare variables
+       EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+
+       COPY "EMPLOYEE.cpy"
+
+       EXEC SQL END   DECLARE SECTION END-EXEC.
+
+       LINKAGE SECTION.
+        COPY "EMPDB2CO.cpy".
+
+       PROCEDURE DIVISION USING CPY-EMPLOYEE.
+
+      *>------------------------------------------------------------------------
+       MAIN-DB2UPDT SECTION.
+      *>------------------------------------------------------------------------
+           DISPLAY "DB2DELET: INSIDE DB2 DELETE MODULE"
+
+           IF CPY-EMPLOYEE-ADD
+              PERFORM MOVE-TO-EMP-HOST THRU MOVE-TO-EMP-HOST-EXIT
+              PERFORM DELETE-EMPL THRU DELETE-EMPL-EXIT
+           END-IF
+           DISPLAY "DB2DELET: EXITING DB2 DELETE MODULE"
+
+           GOBACK
+
+          .
+       MAIN-DB2UPDT-EX.
+          EXIT.
+
+      *>------------------------------------------------------------------------
+       MOVE-TO-EMP-HOST SECTION.
+      *>------------------------------------------------------------------------
+               INITIALIZE EMPLOYEE
+
+               MOVE CPY-EMPNO              TO EMP-EMPNO
+               MOVE LENGTH OF CPY-FIRSTNME TO EMP-FIRSTNME-LEN
+               MOVE CPY-FIRSTNME           TO EMP-FIRSTNME-DAT
+               MOVE CPY-MIDINIT            TO EMP-MIDINIT
+               MOVE LENGTH OF CPY-LASTNAME TO EMP-LASTNAME-LEN
+               MOVE CPY-LASTNAME           TO EMP-LASTNAME-DAT
+               MOVE CPY-WORKDEPT           TO EMP-WORKDEPT
+               MOVE CPY-PHONENO            TO EMP-PHONENO
+               MOVE CPY-HIREDATE           TO EMP-HIREDATE
+               MOVE CPY-JOB                TO EMP-JOB
+               MOVE CPY-EDLEVEL            TO EMP-EDLEVEL
+               MOVE CPY-SEX                TO EMP-SEX
+               MOVE CPY-BIRTHDATE          TO EMP-BIRTHDATE
+               MOVE CPY-SALARY             TO EMP-SALARY
+               MOVE CPY-BONUS              TO EMP-BONUS
+               MOVE CPY-COMM               TO EMP-COMM
+          .
+       MOVE-TO-EMP-HOST-EXIT.
+          EXIT.
+
+      *>------------------------------------------------------------------------
+       DELETE-EMPL SECTION.
+      *>------------------------------------------------------------------------
+           DISPLAY "DB2DELET: DELETE EMPLOYEE"
+
+           EXEC SQL
+               DELETE FROM EMPLOYEE
+               WHERE EMPNO =  :EMP-EMPNO
+           END-EXEC
+
+           MOVE SQLCODE TO WS-SQL-STATUS
+
+           DISPLAY "DB2DELET: DELETE SQLCODE : "
+           SQLCODE
+
+           EVALUATE WS-SQL-STATUS
+             WHEN SQL-STATUS-OK
+               SET CPY-EMPLOYEE-SUCCESS TO TRUE
+               SET CPY-EMP-ALL-DONE TO TRUE
+               PERFORM SQL-COMMIT THRU SQL-COMMIT-EXIT
+
+             WHEN OTHER
+               SET CPY-EMPLOYEE-FAIL TO TRUE
+               SET CPY-EMP-ERROR TO TRUE
+           END-EVALUATE
+
+          .
+       DELETE-EMPL-EXIT.
+          EXIT.
+
+      *>------------------------------------------------------------------------
+       SQL-COMMIT SECTION.
+      *>------------------------------------------------------------------------
+
+           EXEC SQL
+               COMMIT
+           END-EXEC
+
+          .
+       SQL-COMMIT-EXIT.
+          EXIT.
+
+       END PROGRAM DB2DELET.

@@ -1,0 +1,114 @@
+      *>************************************************************************
+      *>  SAMPLE DB2 CONNECTION PROGRAM
+      *>************************************************************************
+
+      *>************************************************************************
+      *> Program:      DB2CONN.sqb
+      *>
+      *> Purpose:      DB2 Connection Module
+      *>
+      *> Author:       AVINASH KUMAR
+      *>
+      *> Date-Written: 2021.03.01
+      *>
+      *>
+      *>               Implemented features:
+      *>               - connect to DB2
+      *>
+      *>************************************************************************
+      *> Date       Name / Change description
+      *> ========== ============================================================
+      *> 2021.03.01 Avinash Kumar
+      *>            - FIRST VERSION.
+      *>************************************************************************
+
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. DB2CONN.
+
+       ENVIRONMENT DIVISION.
+
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+
+      *> SQL communication area
+       COPY "sqlca.cpy".
+
+      *> SQL status
+       01 WS-SQL-STATUS                PIC S9(9) COMP-5.
+          88 SQL-STATUS-OK             VALUE    0.
+          88 SQL-STATUS-NOT-FOUND      VALUE  100.
+          88 SQL-STATUS-DUP            VALUE -803.
+
+      *> SQL declare variables
+       EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+
+       01 HV-DBALIAS.
+          49 HV-DBALIAS-LEN            PIC S9(4) COMP-5.
+          49 HV-DBALIAS-BUF            PIC X(9).
+       01 HV-USERID.
+          49 HV-USERID-LEN             PIC S9(4) COMP-5.
+          49 HV-USERID-BUF             PIC X(20).
+       01 HV-PSWD.
+          49 HV-PSWD-LEN               PIC S9(4) COMP-5.
+          49 HV-PSWD-BUF               PIC X(20).
+
+       EXEC SQL END   DECLARE SECTION END-EXEC.
+       LINKAGE SECTION.
+        COPY "LNMOD1.cpy".
+
+       PROCEDURE DIVISION USING LN-MOD.
+
+      *>------------------------------------------------------------------------
+       MAIN-DB2CONN SECTION.
+      *>------------------------------------------------------------------------
+           DISPLAY "DB2CONN: INSIDE DB2 CONNECTION MODULE"
+
+           PERFORM CONNECT THRU CONNECT-EX
+
+           DISPLAY "DB2CONN: EXITING DB2 CONNECTION MODULE"
+           GOBACK
+          .
+       MAIN-DB2CONN-EX.
+          EXIT.
+
+      *>------------------------------------------------------------------------
+       CONNECT SECTION.
+      *>------------------------------------------------------------------------
+
+          MOVE LN-DBALIAS OF LN-MOD TO HV-DBALIAS-BUF
+          MOVE FUNCTION STORED-CHAR-LENGTH(HV-DBALIAS-BUF)
+            TO HV-DBALIAS-LEN
+
+          MOVE LN-USERID OF LN-MOD TO HV-USERID-BUF
+          MOVE FUNCTION STORED-CHAR-LENGTH(HV-USERID-BUF)
+            TO HV-USERID-LEN
+
+          MOVE LN-PSWD   OF LN-MOD TO HV-PSWD-BUF
+          MOVE FUNCTION STORED-CHAR-LENGTH(HV-PSWD-BUF)
+            TO HV-PSWD-LEN
+
+          PERFORM SQL-CONNECT
+          .
+       CONNECT-EX.
+          EXIT.
+
+      *>------------------------------------------------------------------------
+       SQL-CONNECT SECTION.
+      *>------------------------------------------------------------------------
+           DISPLAY "DB2CONN: INITIATING CONN REQUEST WITH TESTDB"
+
+          EXEC SQL
+               CONNECT TO    :HV-DBALIAS
+                       USER  :HV-USERID
+                       USING :HV-PSWD
+          END-EXEC
+
+          MOVE SQLCODE TO WS-SQL-STATUS
+
+          DISPLAY "DB2CONN: CONN REQUEST RESPONSE SQLCODE : "
+           SQLCODE
+
+          .
+       SQL-CONNECT-EX.
+          EXIT.
+       END PROGRAM DB2CONN.

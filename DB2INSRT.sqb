@@ -1,0 +1,169 @@
+      *>************************************************************************
+      *>  SAMPLE DB2 INSERT PROGRAM
+      *>************************************************************************
+
+      *>************************************************************************
+      *> Program:      DB2INSRT.sqb
+      *>
+      *> Purpose:      DB2 INSERT Module
+      *>
+      *> Author:       AVINASH KUMAR
+      *>
+      *> Date-Written: 2021.03.01
+      *>
+      *>
+      *>               Implemented features:
+      *>               - INSERT INTO DB2
+      *>               - TABLE EMPLOYEE
+      *>
+      *>************************************************************************
+      *> Date       Name / Change description
+      *> ========== ============================================================
+      *> 2021.03.01 Avinash Kumar
+      *>            - FIRST VERSION.
+      *>************************************************************************
+
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. DB2INSRT.
+
+       ENVIRONMENT DIVISION.
+
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+
+      *> SQL communication area
+       COPY "sqlca.cpy".
+
+      *> SQL status
+       01 WS-SQL-STATUS                PIC S9(9) COMP-5.
+          88 SQL-STATUS-OK             VALUE    0.
+          88 SQL-STATUS-NOT-FOUND      VALUE  100.
+          88 SQL-STATUS-DUP            VALUE -803.
+
+      *> SQL declare variables
+       EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+
+       COPY "EMPLOYEE.cpy"
+
+       EXEC SQL END   DECLARE SECTION END-EXEC.
+
+       LINKAGE SECTION.
+        COPY "EMPDB2CO.cpy".
+
+       PROCEDURE DIVISION USING CPY-EMPLOYEE.
+
+      *>------------------------------------------------------------------------
+       MAIN-DB2INSRT SECTION.
+      *>------------------------------------------------------------------------
+           DISPLAY "DB2INSRT: INSIDE DB2 INSERT MODULE"
+
+           IF CPY-EMPLOYEE-ADD
+              PERFORM MOVE-TO-EMP-HOST THRU MOVE-TO-EMP-HOST-EXIT
+              PERFORM INSERT-INTO-EMPL THRU INSERT-INTO-EMPL-EXIT
+           END-IF
+           DISPLAY "DB2INSRT: EXITING DB2 INSERT MODULE"
+
+           GOBACK
+
+          .
+       MAIN-DB2INSRT-EX.
+          EXIT.
+
+      *>------------------------------------------------------------------------
+       MOVE-TO-EMP-HOST SECTION.
+      *>------------------------------------------------------------------------
+               INITIALIZE EMPLOYEE
+
+               MOVE CPY-EMPNO              TO EMP-EMPNO
+               MOVE LENGTH OF CPY-FIRSTNME TO EMP-FIRSTNME-LEN
+               MOVE CPY-FIRSTNME           TO EMP-FIRSTNME-DAT
+               MOVE CPY-MIDINIT            TO EMP-MIDINIT
+               MOVE LENGTH OF CPY-LASTNAME TO EMP-LASTNAME-LEN
+               MOVE CPY-LASTNAME           TO EMP-LASTNAME-DAT
+               MOVE CPY-WORKDEPT           TO EMP-WORKDEPT
+               MOVE CPY-PHONENO            TO EMP-PHONENO
+               MOVE CPY-HIREDATE           TO EMP-HIREDATE
+               MOVE CPY-JOB                TO EMP-JOB
+               MOVE CPY-EDLEVEL            TO EMP-EDLEVEL
+               MOVE CPY-SEX                TO EMP-SEX
+               MOVE CPY-BIRTHDATE          TO EMP-BIRTHDATE
+               MOVE CPY-SALARY             TO EMP-SALARY
+               MOVE CPY-BONUS              TO EMP-BONUS
+               MOVE CPY-COMM               TO EMP-COMM
+          .
+       MOVE-TO-EMP-HOST-EXIT.
+          EXIT.
+
+      *>------------------------------------------------------------------------
+       INSERT-INTO-EMPL SECTION.
+      *>------------------------------------------------------------------------
+           DISPLAY "DB2INSRT: INSERTING INTO EMPLOYEE TABLE"
+
+          EXEC SQL
+               INSERT INTO EMPLOYEE
+               (  EMPNO
+                 ,FIRSTNME
+                 ,MIDINIT
+                 ,LASTNAME
+                 ,WORKDEPT
+                 ,PHONENO
+                 ,HIREDATE
+                 ,JOB
+                 ,EDLEVEL
+                 ,SEX
+                 ,BIRTHDATE
+                 ,SALARY
+                 ,BONUS
+                 ,COMM
+               )
+               VALUES
+               (  :EMP-EMPNO
+                , :EMP-FIRSTNME
+                , :EMP-MIDINIT
+                , :EMP-LASTNAME
+                , :EMP-WORKDEPT
+                , :EMP-PHONENO
+                , :EMP-HIREDATE
+                , :EMP-JOB
+                , :EMP-EDLEVEL
+                , :EMP-SEX
+                , :EMP-BIRTHDATE
+                , :EMP-SALARY
+                , :EMP-BONUS
+                , :EMP-COMM
+               )
+          END-EXEC
+
+          MOVE SQLCODE TO WS-SQL-STATUS
+
+          DISPLAY "DB2INSRT: INSERT SQLCODE : "
+           SQLCODE
+
+           EVALUATE WS-SQL-STATUS
+             WHEN SQL-STATUS-OK
+               SET CPY-EMPLOYEE-SUCCESS TO TRUE
+               SET CPY-EMP-ALL-DONE TO TRUE
+               PERFORM SQL-COMMIT THRU SQL-COMMIT-EXIT
+
+             WHEN OTHER
+               SET CPY-EMPLOYEE-FAIL TO TRUE
+               SET CPY-EMP-ERROR TO TRUE
+           END-EVALUATE
+
+          .
+       INSERT-INTO-EMPL-EXIT.
+          EXIT.
+
+      *>------------------------------------------------------------------------
+       SQL-COMMIT SECTION.
+      *>------------------------------------------------------------------------
+
+           EXEC SQL
+               COMMIT
+           END-EXEC
+
+          .
+       SQL-COMMIT-EXIT.
+          EXIT.
+
+       END PROGRAM DB2INSRT.

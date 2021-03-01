@@ -1,0 +1,30 @@
+       01 CPY-EMPLOYEE.
+           05 CPY-FUNC                 PIC X(03).
+              88 CPY-EMPLOYEE-ADD       VALUE 'ADD'.
+              88 CPY-EMPLOYEE-UPDATE    VALUE 'UPD'.
+              88 CPY-EMPLOYEE-DELETE    VALUE 'DEL'.
+              88 CPY-EMPLOYEE-SELECT    VALUE 'SEL'.
+           05 CPY-EMPLOYEE-DATA.
+               10 CPY-EMPNO            PIC X(6).
+               10 CPY-FIRSTNME         PIC X(12).
+               10 CPY-MIDINIT          PIC X(1).
+               10 CPY-LASTNAME         PIC X(15).
+               10 CPY-WORKDEPT         PIC X(3).
+               10 CPY-PHONENO          PIC X(4).
+               10 CPY-HIREDATE         PIC X(10).
+               10 CPY-JOB              PIC X(8).
+               10 CPY-EDLEVEL          PIC 9(05).
+               10 CPY-SEX              PIC X(1).
+               10 CPY-BIRTHDATE        PIC X(10).
+               10 CPY-SALARY           PIC 9(09).
+               10 CPY-BONUS            PIC 9(09).
+               10 CPY-COMM             PIC 9(09).
+           05 CPY-EMPLOYEE-STATUS      PIC X(1).
+              88 CPY-EMPLOYEE-FAIL      VALUE 'F'.
+              88 CPY-EMPLOYEE-SUCCESS   VALUE 'S'.
+              88 CPY-EMPLOYEE-WARNING   VALUE 'W'.
+           05 CPY-EMPLOYEE-STATUS-CODE PIC 9(3).
+              88 CPY-EMP-ALL-DONE       VALUE '000'.
+              88 CPY-EMP-ERROR          VALUE '999'.
+              88 CPY-EMP-NOT-FOUND      VALUE '100'.
+              88 CPY-EMP-DUPLICATE      VALUE '803'.
