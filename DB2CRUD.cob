@@ -43,7 +43,7 @@
 
         01 WS-THIS-PGM           PIC X(7) VALUE 'DB2CRUD'.
         01 WS-DB2-CONN-PGM       PIC X(7) VALUE 'DB2CONN'.
-        01 WS-ADD-PGM            PIC X(8) VALUE 'DB2INDRT'.
+        01 WS-ADD-PGM            PIC X(8) VALUE 'DB2INSRT'.
         01 WS-UPDATE-PGM         PIC X(7) VALUE 'DB2UPDT'.
         01 WS-DELETE-PGM         PIC X(8) VALUE 'DB2DELET'.
 
