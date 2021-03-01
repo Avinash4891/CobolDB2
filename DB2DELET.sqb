@@ -112,7 +112,7 @@
            SQLCODE
 
            EVALUATE WS-SQL-STATUS
-             WHEN SQL-STATUS-OK
+             WHEN 0
                SET CPY-EMPLOYEE-SUCCESS TO TRUE
                SET CPY-EMP-ALL-DONE TO TRUE
                PERFORM SQL-COMMIT THRU SQL-COMMIT-EXIT
