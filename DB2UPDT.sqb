@@ -43,7 +43,7 @@
       *> SQL declare variables
        EXEC SQL BEGIN DECLARE SECTION END-EXEC.
 
-       COPY "EMPLOYEE.cpy"
+         EXEC SQL INCLUDE EMPLOYEE END-EXEC
 
        EXEC SQL END   DECLARE SECTION END-EXEC.
 
@@ -124,7 +124,7 @@
            SQLCODE
 
            EVALUATE WS-SQL-STATUS
-             WHEN SQL-STATUS-OK
+             WHEN 0
                SET CPY-EMPLOYEE-SUCCESS TO TRUE
                SET CPY-EMP-ALL-DONE TO TRUE
                PERFORM SQL-COMMIT THRU SQL-COMMIT-EXIT
