@@ -57,7 +57,7 @@
       *>------------------------------------------------------------------------
            DISPLAY "DB2UPDT: INSIDE DB2 UPDATE MODULE"
 
-           IF CPY-EMPLOYEE-ADD
+           IF CPY-EMPLOYEE-UPDATE
               PERFORM MOVE-TO-EMP-HOST THRU MOVE-TO-EMP-HOST-EXIT
               PERFORM UPDATE-EMPL THRU UPDATE-EMPL-EXIT
            END-IF
