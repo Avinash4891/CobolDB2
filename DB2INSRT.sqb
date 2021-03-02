@@ -91,7 +91,7 @@
                MOVE CPY-BONUS              TO EMP-BONUS
                MOVE CPY-COMM               TO EMP-COMM
 
-               DISPAY " ------------CPY BELOW---------------"
+               DISPLAY " ------------CPY BELOW---------------"
                DISPLAY CPY-EMPNO
                DISPLAY CPY-FIRSTNME
                DISPLAY CPY-MIDINIT
