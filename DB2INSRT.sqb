@@ -91,36 +91,6 @@
                MOVE CPY-BONUS              TO EMP-BONUS
                MOVE CPY-COMM               TO EMP-COMM
 
-               DISPLAY " ------------CPY BELOW---------------"
-               DISPLAY CPY-EMPNO
-               DISPLAY CPY-FIRSTNME
-               DISPLAY CPY-MIDINIT
-               DISPLAY CPY-LASTNAME
-               DISPLAY CPY-WORKDEPT
-               DISPLAY CPY-PHONENO
-               DISPLAY CPY-HIREDATE
-               DISPLAY CPY-JOB
-               DISPLAY CPY-EDLEVEL
-               DISPLAY CPY-SEX
-               DISPLAY CPY-BIRTHDATE
-               DISPLAY CPY-SALARY
-               DISPLAY CPY-BONUS
-               DISPLAY CPY-COMM
-               DISPLAY " ------------HV BELOW---------------"
-               DISPLAY EMP-EMPNO
-               DISPLAY EMP-FIRSTNME-DAT
-               DISPLAY EMP-MIDINIT
-               DISPLAY EMP-LASTNAME-DAT
-               DISPLAY EMP-WORKDEPT
-               DISPLAY EMP-PHONENO
-               DISPLAY EMP-HIREDATE
-               DISPLAY EMP-JOB
-               DISPLAY EMP-EDLEVEL
-               DISPLAY EMP-SEX
-               DISPLAY EMP-BIRTHDATE
-               DISPLAY EMP-SALARY
-               DISPLAY EMP-BONUS
-               DISPLAY EMP-COMM
           .
        MOVE-TO-EMP-HOST-EXIT.
           EXIT.
