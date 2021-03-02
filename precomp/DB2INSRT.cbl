@@ -63,7 +63,7 @@
        01  SQLA-PROGRAM-ID.
            05 SQL-PART1 pic 9(4) COMP-5 value 172.
            05 SQL-PART2 pic X(6) value "AEAVAI".
-           05 SQL-PART3 pic X(24) value "EB3AFCDl01111 2         ".
+           05 SQL-PART3 pic X(24) value "OB2OFCDl01111 2         ".
            05 SQL-PART4 pic 9(4) COMP-5 value 8.
            05 SQL-PART5 pic X(8) value "DB2INST1".
            05 SQL-PART6 pic X(120) value LOW-VALUES.
@@ -166,6 +166,37 @@
                MOVE CPY-SALARY             TO EMP-SALARY
                MOVE CPY-BONUS              TO EMP-BONUS
                MOVE CPY-COMM               TO EMP-COMM
+
+               DISPAY " ------------CPY BELOW---------------"
+               DISPLAY CPY-EMPNO
+               DISPLAY CPY-FIRSTNME
+               DISPLAY CPY-MIDINIT
+               DISPLAY CPY-LASTNAME
+               DISPLAY CPY-WORKDEPT
+               DISPLAY CPY-PHONENO
+               DISPLAY CPY-HIREDATE
+               DISPLAY CPY-JOB
+               DISPLAY CPY-EDLEVEL
+               DISPLAY CPY-SEX
+               DISPLAY CPY-BIRTHDATE
+               DISPLAY CPY-SALARY
+               DISPLAY CPY-BONUS
+               DISPLAY CPY-COMM
+               DISPLAY " ------------HV BELOW---------------"
+               DISPLAY EMP-EMPNO
+               DISPLAY EMP-FIRSTNME-DAT
+               DISPLAY EMP-MIDINIT
+               DISPLAY EMP-LASTNAME-DAT
+               DISPLAY EMP-WORKDEPT
+               DISPLAY EMP-PHONENO
+               DISPLAY EMP-HIREDATE
+               DISPLAY EMP-JOB
+               DISPLAY EMP-EDLEVEL
+               DISPLAY EMP-SEX
+               DISPLAY EMP-BIRTHDATE
+               DISPLAY EMP-SALARY
+               DISPLAY EMP-BONUS
+               DISPLAY EMP-COMM
           .
        MOVE-TO-EMP-HOST-EXIT.
           EXIT.
