@@ -63,7 +63,7 @@
        01  SQLA-PROGRAM-ID.
            05 SQL-PART1 pic 9(4) COMP-5 value 172.
            05 SQL-PART2 pic X(6) value "AEAVAI".
-           05 SQL-PART3 pic X(24) value "uA1UFCDl01111 2         ".
+           05 SQL-PART3 pic X(24) value "jA15FCDl01111 2         ".
            05 SQL-PART4 pic 9(4) COMP-5 value 8.
            05 SQL-PART5 pic X(8) value "DB2INST1".
            05 SQL-PART6 pic X(120) value LOW-VALUES.
@@ -135,7 +135,7 @@
       *>------------------------------------------------------------------------
            DISPLAY "DB2DELET: INSIDE DB2 DELETE MODULE"
 
-           IF CPY-EMPLOYEE-ADD
+           IF CPY-EMPLOYEE-DELETE
               PERFORM MOVE-TO-EMP-HOST THRU MOVE-TO-EMP-HOST-EXIT
               PERFORM DELETE-EMPL THRU DELETE-EMPL-EXIT
            END-IF
