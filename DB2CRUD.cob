@@ -68,6 +68,8 @@
                THRU PROCESS-INPUT-FILE-EXIT
                UNTIL WS-EOF
 
+            CLOSE EMPLOYEE-FILE
+
            DISPLAY "DB2CRUD: EXITING DB2CRUD MODULE"
 
            STOP RUN.
