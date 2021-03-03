@@ -1,31 +1,5 @@
       *>************************************************************************
-      *>  This file is part of DBsample.
-      *>
-      *>  LNMOD1.cpy is free software: you can redistribute it and/or
-      *>  modify it under the terms of the GNU Lesser General Public License as
-      *>  published by the Free Software Foundation, either version 3 of the
-      *>  License, or (at your option) any later version.
-      *>
-      *>  LNMOD1.cpy is distributed in the hope that it will be useful,
-      *>  but WITHOUT ANY WARRANTY; without even the implied warranty of
-      *>  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-      *>  See the GNU Lesser General Public License for more details.
-      *>
-      *>  You should have received a copy of the GNU Lesser General Public
-      *>  License along with LNMOD1.cpy.
-      *>  If not, see <http://www.gnu.org/licenses/>.
-      *>************************************************************************
-
-      *>************************************************************************
       *> Program:      LNMOD1.cpy
-      *>
-      *> Purpose:      Linkage for the module DB2MOD1.sqb
-      *>
-      *> Author:       Laszlo Erdos - https://www.facebook.com/wortfee
-      *>
-      *> Date-Written: 2015.12.24
-      *>
-      *> Tectonics:    ---
       *>
       *> Usage:        Use this copy file in GnuCOBOL DB2 programs.
       *>
