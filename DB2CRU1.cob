@@ -24,7 +24,7 @@
       *>************************************************************************
 
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. DB2CRUD.
+       PROGRAM-ID. DB2CRU1.
 
        ENVIRONMENT DIVISION.
         INPUT-OUTPUT SECTION.
@@ -61,7 +61,7 @@
            OPEN INPUT EMPLOYEE-FILE.
            SET WS-NOT-EOF TO TRUE.
 
-            PERFORM CONNECT-DB2 THRU CONNECT-DB2-EXIT.
+      *>   PERFORM CONNECT-DB2 THRU CONNECT-DB2-EXIT.
 
 
             PERFORM PROCESS-INPUT-FILE
@@ -79,19 +79,18 @@
       *>------------------------------------------------------------------------
 
       *>------------------------------------------------------------------------
-       CONNECT-DB2 SECTION.
+      *>--- CONNECT-DB2 SECTION.
       *>------------------------------------------------------------------------
 
-            INITIALIZE LN-MOD
-            MOVE "SAMPLE"   TO LN-DBALIAS OF LN-MOD
-            MOVE "DB2INST1" TO LN-USERID  OF LN-MOD
-            MOVE "db2admin" TO LN-PSWD    OF LN-MOD
-
-           CALL WS-DB2-CONN-PGM USING LN-MOD END-CALL.
+      *>---      INITIALIZE LN-MOD
+      *>---      MOVE "SAMPLE"   TO LN-DBALIAS OF LN-MOD
+      *>---      MOVE "DB2INST1" TO LN-USERID  OF LN-MOD
+      *>---      MOVE "db2admin" TO LN-PSWD    OF LN-MOD
+      *>---     CALL WS-DB2-CONN-PGM USING LN-MOD END-CALL.
 
       *>------------------------------------------------------------------------          .
-       CONNECT-DB2-EXIT.
-          EXIT.
+      *>--- CONNECT-DB2-EXIT.
+      *>---    EXIT.
       *>------------------------------------------------------------------------
 
       *>------------------------------------------------------------------------
@@ -131,4 +130,4 @@
           EXIT.
       *>------------------------------------------------------------------------
 
-       END PROGRAM DB2CRUD.
+       END PROGRAM DB2CRU1.
