@@ -30,7 +30,7 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
-       SELECT EMP-OUTPUT ASSIGN TO 'output.txt'
+       SELECT OPTIONAL EMP-OUTPUT ASSIGN TO 'output.txt'
        ORGANIZATION IS LINE SEQUENTIAL.
 
        DATA DIVISION.
@@ -86,7 +86,7 @@
        01  SQLA-PROGRAM-ID.
            05 SQL-PART1 pic 9(4) COMP-5 value 172.
            05 SQL-PART2 pic X(6) value "AEAVAI".
-           05 SQL-PART3 pic X(24) value "wA6BIKDl01111 2         ".
+           05 SQL-PART3 pic X(24) value "ABVOIKDl01111 2         ".
            05 SQL-PART4 pic 9(4) COMP-5 value 8.
            05 SQL-PART5 pic X(8) value "DB2INST1".
            05 SQL-PART6 pic X(120) value LOW-VALUES.
