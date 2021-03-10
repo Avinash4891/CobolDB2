@@ -35,7 +35,7 @@
 
        DATA DIVISION.
        FILE SECTION.
-       FD EMPLOYEE-OUTPUT-FILE.
+       FD EMP-OUTPUT.
            01 OUT-EMPLOYEE-DATA.
                10 OUT-EMPNO            PIC X(6).
                10 OUT-FIRSTNME         PIC X(12).
@@ -64,8 +64,8 @@
           88 SQL-STATUS-DUP            VALUE -803.
 
        01 WS-CSR-STATUS                PIC X(01).
-          88 CSR-NOT-END-OF-DATA  VALUE 'N'
-          88 CSR-END-OF-DATA      VALUE 'E'
+          88 CSR-NOT-END-OF-DATA  VALUE 'N'.
+          88 CSR-END-OF-DATA      VALUE 'E'.
 
       *> SQL declare variables
        EXEC SQL BEGIN DECLARE SECTION END-EXEC.
