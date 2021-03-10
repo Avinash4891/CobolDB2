@@ -86,7 +86,7 @@
        01  SQLA-PROGRAM-ID.
            05 SQL-PART1 pic 9(4) COMP-5 value 172.
            05 SQL-PART2 pic X(6) value "AEAVAI".
-           05 SQL-PART3 pic X(24) value "jAEIHKDl01111 2         ".
+           05 SQL-PART3 pic X(24) value "eBsaHKDl01111 2         ".
            05 SQL-PART4 pic 9(4) COMP-5 value 8.
            05 SQL-PART5 pic X(8) value "DB2INST1".
            05 SQL-PART6 pic X(120) value LOW-VALUES.
@@ -187,7 +187,7 @@
       *>------------------------------------------------------------------------
        MAIN-DB2FETCH SECTION.
       *>------------------------------------------------------------------------
-           DISPLAY "DB2FETCH: INSIDE DB2 INSERT MODULE"
+           DISPLAY "DB2FETCH: INSIDE DB2 FETCH MODULE"
 
            IF CPY-EMPLOYEE-SELECT
       *>--- OPEN I-O FILE
@@ -211,7 +211,7 @@
 
            END-IF
 
-           DISPLAY "DB2FETCH: EXITING DB2 INSERT MODULE"
+           DISPLAY "DB2FETCH: EXITING DB2 FETCH MODULE"
 
            GOBACK
 
@@ -534,17 +534,19 @@
 
           MOVE SQLCODE TO WS-SQL-STATUS
 
-          DISPLAY "DB2FETCH: INSERT SQLCODE : "
+          DISPLAY "DB2FETCH: SQLCODE : "
            SQLCODE
 
            EVALUATE WS-SQL-STATUS
              WHEN 0
+               DISPLAY "DB2FETCH: WRITE FILE"
       *>--- WRITE RECORD IN FILE
                PERFORM MOVE-HOST-TO-COPY
                   THRU MOVE-HOST-TO-COPY-EXIT
                WRITE OUT-EMPLOYEE-DATA
 
              WHEN 100
+               DISPLAY "DB2FETCH: END OF DB2 CURSOR"
                SET CSR-END-OF-DATA TO TRUE
 
              WHEN OTHER
@@ -585,7 +587,7 @@
       *>------------------------------------------------------------------------
        OPEN-CURSOR-ALL-EMPS SECTION.
       *>------------------------------------------------------------------------
-
+              DISPLAY "DB2FETCH: CURSOR OPEN"
            
       *EXEC SQL 
       *OPEN CURSOR_ALL_EMPS
@@ -652,6 +654,7 @@
            CALL "sqlgstop" USING
             BY VALUE 0
                                                                         
+              DISPLAY "DB2FETCH: CURSOR OPEN SQLCODE >> " SQLCODE
 
           .
        OPEN-CURSOR-ALL-EMPS-EXIT.
@@ -660,7 +663,7 @@
       *>------------------------------------------------------------------------
        CLOSE-CURSOR-ALL-EMPS SECTION.
       *>------------------------------------------------------------------------
-
+           DISPLAY "DB2FETCH: CURSOR CLOSE "
            
       *EXEC SQL 
       *CLOSE CURSOR_ALL_EMPS
@@ -685,7 +688,7 @@
            CALL "sqlgstop" USING
             BY VALUE 0
                                                                         
-
+           DISPLAY "DB2FETCH: CURSOR CLOSE SQLCODE >> " SQLCODE
           .
        CLOSE-CURSOR-ALL-EMPS-EXIT.
           EXIT.
