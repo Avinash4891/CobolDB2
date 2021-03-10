@@ -247,11 +247,11 @@
               MOVE  EMP-COMM           TO  OUT-COMM
 
           .
-       MOVE-COPY-TO-HOST-EXIT.
+       MOVE-HOST-TO-COPY-EXIT.
           EXIT.
 
       *>------------------------------------------------------------------------
-       MOVE-HOST-TO-COPY SECTION.
+       OPEN-CURSOR-ALL-EMPS SECTION.
       *>------------------------------------------------------------------------
 
            EXEC SQL
