@@ -173,7 +173,7 @@
              UNTIL CSR-END-OF-DATA
 
           .
-       FETCH-FROM-EXIT.
+       FETCH-FROM-EMPL-EXIT.
           EXIT.
 
       *>------------------------------------------------------------------------
