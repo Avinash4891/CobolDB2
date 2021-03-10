@@ -1,0 +1,277 @@
+      *>************************************************************************
+      *>  SAMPLE DB2 INSERT PROGRAM
+      *>************************************************************************
+
+      *>************************************************************************
+      *> Program:      DB2FETCH.sqb
+      *>
+      *> Purpose:      DB2 FETCH Module
+      *>
+      *> Author:       AVINASH KUMAR
+      *>
+      *> Date-Written: 2021.03.10
+      *>
+      *>
+      *>               Implemented features:
+      *>               - FETCH FROM DB2
+      *>               - WRITE TO OUTPUT FILE
+      *>               - TABLE EMPLOYEE
+      *>
+      *>************************************************************************
+      *> Date       Name / Change description
+      *> ========== ============================================================
+      *> 2021.03.10 Avinash Kumar
+      *>            - FIRST VERSION.
+      *>************************************************************************
+
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. DB2FETCH.
+
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+       SELECT EMP-OUTPUT ASSIGN TO 'output.txt'
+       ORGANIZATION IS LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD EMPLOYEE-OUTPUT-FILE.
+           01 OUT-EMPLOYEE-DATA.
+               10 OUT-EMPNO            PIC X(6).
+               10 OUT-FIRSTNME         PIC X(12).
+               10 OUT-MIDINIT          PIC X(1).
+               10 OUT-LASTNAME         PIC X(15).
+               10 OUT-WORKDEPT         PIC X(3).
+               10 OUT-PHONENO          PIC X(4).
+               10 OUT-HIREDATE         PIC X(10).
+               10 OUT-JOB              PIC X(8).
+               10 OUT-EDLEVEL          PIC 9(05).
+               10 OUT-SEX              PIC X(1).
+               10 OUT-BIRTHDATE        PIC X(10).
+               10 OUT-SALARY           PIC 9(09).
+               10 OUT-BONUS            PIC 9(09).
+               10 OUT-COMM             PIC 9(09).
+
+       WORKING-STORAGE SECTION.
+
+      *> SQL communication area
+       COPY "sqlca.cpy".
+
+      *> SQL status
+       01 WS-SQL-STATUS                PIC S9(9) COMP-5.
+          88 SQL-STATUS-OK             VALUE    0.
+          88 SQL-STATUS-NOT-FOUND      VALUE  100.
+          88 SQL-STATUS-DUP            VALUE -803.
+
+       01 WS-CSR-STATUS                PIC X(01).
+          88 CSR-NOT-END-OF-DATA  VALUE 'N'
+          88 CSR-END-OF-DATA      VALUE 'E'
+
+      *> SQL declare variables
+       EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+
+        EXEC SQL INCLUDE EMPLOYEE END-EXEC
+
+       01 HV-AREA.
+           05 HV-MAX-EMP            PIC X(6).
+           05 HV-MIN-EMP            PIC X(6).
+
+
+       EXEC SQL END   DECLARE SECTION END-EXEC.
+
+       EXEC SQL
+            DECLARE CURSOR_ALL_EMPS CURSOR FOR
+            SELECT  EMPNO
+                   ,FIRSTNME
+                   ,MIDINIT
+                   ,LASTNAME
+                   ,WORKDEPT
+                   ,PHONENO
+                   ,HIREDATE
+                   ,JOB
+                   ,EDLEVEL
+                   ,SEX
+                   ,BIRTHDATE
+                   ,SALARY
+                   ,BONUS
+                   ,COMM
+            FROM EMPLOYEE
+            WHERE EMPNO <= :HV-MAX-EMP
+              AND EMPNO >= :HV-MIN-EMP
+            ORDER BY  EMPNO             ASC
+       END-EXEC.
+
+
+       LINKAGE SECTION.
+        COPY "EMPDB2CO.cpy".
+
+       PROCEDURE DIVISION USING CPY-EMPLOYEE.
+
+      *>------------------------------------------------------------------------
+       MAIN-DB2FETCH SECTION.
+      *>------------------------------------------------------------------------
+           DISPLAY "DB2FETCH: INSIDE DB2 INSERT MODULE"
+
+           IF CPY-EMPLOYEE-SELECT
+      *>--- OPEN I-O FILE
+              OPEN EXTEND EMP-OUTPUT
+       *>--- PREPARE HOST VARIABLES
+              PERFORM MOVE-COPY-TO-HOST THRU MOVE-COPY-TO-HOST-EXIT
+
+       *>--- OPEN
+              PERFORM OPEN-CURSOR-ALL-EMPS
+                 THRU OPEN-CURSOR-ALL-EMPS-EXIT
+
+       *>--- FETCH -- LOOP -- WRITE
+              PERFORM FETCH-FROM-EMPL
+                 THRU FETCH-FROM-EMPL-EXIT
+
+       *>--- CLOSE CURSOR AND FILE
+              PERFORM CLOSE-CURSOR-ALL-EMPS
+                 THRU CLOSE-CURSOR-ALL-EMPS-EXIT
+
+              CLOSE EMP-OUTPUT
+
+           END-IF
+
+           DISPLAY "DB2FETCH: EXITING DB2 INSERT MODULE"
+
+           GOBACK
+
+          .
+       MAIN-DB2FETCH-EX.
+          EXIT.
+
+      *>------------------------------------------------------------------------
+       MOVE-COPY-TO-HOST SECTION.
+      *>------------------------------------------------------------------------
+
+               INITIALIZE EMPLOYEE
+                          HV-AREA
+
+               IF CPY-EMPNO > SPACES
+                   MOVE CPY-EMPNO              TO EMP-EMPNO
+                   MOVE EMP-EMPNO              TO HV-MIN-EMP
+                                                  HV-MAX-EMP
+               ELSE
+                   MOVE LOW-VALUES             TO HV-MIN-EMP
+                   MOVE HIGH-VALUES            TO HV-MAX-EMP
+               END-IF
+          .
+       MOVE-COPY-TO-HOST-EXIT.
+          EXIT.
+
+      *>------------------------------------------------------------------------
+       FETCH-FROM-EMPL SECTION.
+      *>------------------------------------------------------------------------
+           DISPLAY "DB2FETCH: FETCHING FROM EMPLOYEE TABLE"
+
+           SET CSR-NOT-END-OF-DATA TO TRUE
+
+           PERFORM SELECT-ROW-FROM-TABLE
+              THRU SELECT-ROW-FROM-TABLE-EXIT
+             UNTIL CSR-END-OF-DATA
+
+          .
+       FETCH-FROM-EXIT.
+          EXIT.
+
+      *>------------------------------------------------------------------------
+       SELECT-ROW-FROM-TABLE SECTION.
+      *>------------------------------------------------------------------------
+           DISPLAY "DB2FETCH: SELECT ROW"
+           INITIALIZE EMPLOYEE
+
+          EXEC SQL
+               FETCH CURSOR_ALL_EMPS
+                INTO :EMP-EMPNO
+                   , :EMP-FIRSTNME
+                   , :EMP-MIDINIT
+                   , :EMP-LASTNAME
+                   , :EMP-WORKDEPT
+                   , :EMP-PHONENO
+                   , :EMP-HIREDATE
+                   , :EMP-JOB
+                   , :EMP-EDLEVEL
+                   , :EMP-SEX
+                   , :EMP-BIRTHDATE
+                   , :EMP-SALARY
+                   , :EMP-BONUS
+                   , :EMP-COMM
+          END-EXEC
+
+          MOVE SQLCODE TO WS-SQL-STATUS
+
+          DISPLAY "DB2FETCH: INSERT SQLCODE : "
+           SQLCODE
+
+           EVALUATE WS-SQL-STATUS
+             WHEN 0
+      *>--- WRITE RECORD IN FILE
+               PERFORM MOVE-HOST-TO-COPY
+                  THRU MOVE-HOST-TO-COPY-EXIT
+               WRITE OUT-EMPLOYEE-DATA
+
+             WHEN 100
+               SET CSR-END-OF-DATA TO TRUE
+
+             WHEN OTHER
+               SET CSR-END-OF-DATA TO TRUE
+               SET CPY-EMPLOYEE-FAIL TO TRUE
+               SET CPY-EMP-ERROR TO TRUE
+           END-EVALUATE
+
+          .
+       SELECT-ROW-FROM-TABLE-EXIT.
+          EXIT.
+
+      *>------------------------------------------------------------------------
+       MOVE-HOST-TO-COPY SECTION.
+      *>------------------------------------------------------------------------
+
+               INITIALIZE OUT-EMPLOYEE-DATA
+
+              MOVE  EMP-EMPNO          TO  OUT-EMPNO
+              MOVE  EMP-FIRSTNME-DAT   TO  OUT-FIRSTNME
+              MOVE  EMP-MIDINIT        TO  OUT-MIDINIT
+              MOVE  EMP-LASTNAME-DAT   TO  OUT-LASTNAME
+              MOVE  EMP-WORKDEPT       TO  OUT-WORKDEPT
+              MOVE  EMP-PHONENO        TO  OUT-PHONENO
+              MOVE  EMP-HIREDATE       TO  OUT-HIREDATE
+              MOVE  EMP-JOB            TO  OUT-JOB
+              MOVE  EMP-EDLEVEL        TO  OUT-EDLEVEL
+              MOVE  EMP-SEX            TO  OUT-SEX
+              MOVE  EMP-BIRTHDATE      TO  OUT-BIRTHDATE
+              MOVE  EMP-SALARY         TO  OUT-SALARY
+              MOVE  EMP-BONUS          TO  OUT-BONUS
+              MOVE  EMP-COMM           TO  OUT-COMM
+
+          .
+       MOVE-COPY-TO-HOST-EXIT.
+          EXIT.
+
+      *>------------------------------------------------------------------------
+       MOVE-HOST-TO-COPY SECTION.
+      *>------------------------------------------------------------------------
+
+           EXEC SQL
+               OPEN CURSOR_ALL_EMPS
+           END-EXEC
+
+          .
+       OPEN-CURSOR-ALL-EMPS-EXIT.
+          EXIT.
+
+      *>------------------------------------------------------------------------
+       CLOSE-CURSOR-ALL-EMPS SECTION.
+      *>------------------------------------------------------------------------
+
+           EXEC SQL
+               CLOSE CURSOR_ALL_EMPS
+           END-EXEC
+
+          .
+       CLOSE-CURSOR-ALL-EMPS-EXIT.
+          EXIT.
+
+       END PROGRAM DB2FETCH.

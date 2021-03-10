@@ -46,6 +46,7 @@
         01 WS-ADD-PGM            PIC X(8) VALUE 'DB2INSRT'.
         01 WS-UPDATE-PGM         PIC X(7) VALUE 'DB2UPDT'.
         01 WS-DELETE-PGM         PIC X(8) VALUE 'DB2DELET'.
+        01 WS-SELECT-PGM         PIC X(8) VALUE 'DB2FETCH'.
 
         01 WS-FILE-STATUS        PIC X.
            88 WS-EOF              VALUE 'Y'.
@@ -121,7 +122,7 @@
              WHEN CPY-EMPLOYEE-DELETE
                CALL WS-DELETE-PGM USING CPY-EMPLOYEE END-CALL
              WHEN CPY-EMPLOYEE-SELECT
-             DISPLAY "OPERATION NOT SUPPORTED CURRENTLY"
+               CALL WS-SELECT-PGM USING CPY-EMPLOYEE END-CALL
              WHEN OTHER
                DISPLAY "NOT A VALID OPERATION"
            END-EVALUATE
