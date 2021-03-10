@@ -67,20 +67,23 @@
           88 CSR-NOT-END-OF-DATA  VALUE 'N'.
           88 CSR-END-OF-DATA      VALUE 'E'.
 
+       01 WS-SEL-TYPE                  PIC X(01).
+          88 WS-SEL-ALL-EMP       VALUE 'N'.
+          88 WS-SEL-ONE-EMP       VALUE 'E'.
+
       *> SQL declare variables
        EXEC SQL BEGIN DECLARE SECTION END-EXEC.
 
         EXEC SQL INCLUDE EMPLOYEE END-EXEC
 
        01 HV-AREA.
-           05 HV-MAX-EMP            PIC X(6).
-           05 HV-MIN-EMP            PIC X(6).
+           05 HV-EMPNO              PIC X(6).
 
 
        EXEC SQL END   DECLARE SECTION END-EXEC.
 
        EXEC SQL
-            DECLARE CURSOR_ALL_EMPS CURSOR FOR
+            DECLARE CURSOR_ALL_EMP CURSOR FOR
             SELECT  EMPNO
                    ,FIRSTNME
                    ,MIDINIT
@@ -96,8 +99,27 @@
                    ,BONUS
                    ,COMM
             FROM EMPLOYEE
-            WHERE EMPNO <= :HV-MAX-EMP
-              AND EMPNO >= :HV-MIN-EMP
+            ORDER BY  EMPNO             ASC
+       END-EXEC.
+
+              EXEC SQL
+            DECLARE CURSOR_ONE_EMP CURSOR FOR
+            SELECT  EMPNO
+                   ,FIRSTNME
+                   ,MIDINIT
+                   ,LASTNAME
+                   ,WORKDEPT
+                   ,PHONENO
+                   ,HIREDATE
+                   ,JOB
+                   ,EDLEVEL
+                   ,SEX
+                   ,BIRTHDATE
+                   ,SALARY
+                   ,BONUS
+                   ,COMM
+            FROM EMPLOYEE
+            WHERE EMPNO = :HV-EMPNO
             ORDER BY  EMPNO             ASC
        END-EXEC.
 
@@ -150,12 +172,10 @@
                           HV-AREA
 
                IF CPY-EMPNO > SPACES
-                   MOVE CPY-EMPNO              TO EMP-EMPNO
-                   MOVE EMP-EMPNO              TO HV-MIN-EMP
-                                                  HV-MAX-EMP
+                   MOVE CPY-EMPNO              TO HV-EMPNO
+                   SET  WS-SEL-ONE-EMP TO TRUE
                ELSE
-                   MOVE LOW-VALUES             TO HV-MIN-EMP
-                   MOVE HIGH-VALUES            TO HV-MAX-EMP
+                   SET  WS-SEL-ALL-EMP TO TRUE
                END-IF
           .
        MOVE-COPY-TO-HOST-EXIT.
@@ -182,23 +202,43 @@
            DISPLAY "DB2FETCH: SELECT ROW"
            INITIALIZE EMPLOYEE
 
-          EXEC SQL
-               FETCH CURSOR_ALL_EMPS
-                INTO :EMP-EMPNO
-                   , :EMP-FIRSTNME
-                   , :EMP-MIDINIT
-                   , :EMP-LASTNAME
-                   , :EMP-WORKDEPT
-                   , :EMP-PHONENO
-                   , :EMP-HIREDATE
-                   , :EMP-JOB
-                   , :EMP-EDLEVEL
-                   , :EMP-SEX
-                   , :EMP-BIRTHDATE
-                   , :EMP-SALARY
-                   , :EMP-BONUS
-                   , :EMP-COMM
-          END-EXEC
+           IF WS-SEL-ALL-EMP
+               EXEC SQL
+                   FETCH CURSOR_ALL_EMP
+                    INTO :EMP-EMPNO
+                       , :EMP-FIRSTNME
+                       , :EMP-MIDINIT
+                       , :EMP-LASTNAME
+                       , :EMP-WORKDEPT
+                       , :EMP-PHONENO
+                       , :EMP-HIREDATE
+                       , :EMP-JOB
+                       , :EMP-EDLEVEL
+                       , :EMP-SEX
+                       , :EMP-BIRTHDATE
+                       , :EMP-SALARY
+                       , :EMP-BONUS
+                       , :EMP-COMM
+               END-EXEC
+           ELSE
+               EXEC SQL
+                   FETCH CURSOR_ONE_EMP
+                    INTO :EMP-EMPNO
+                       , :EMP-FIRSTNME
+                       , :EMP-MIDINIT
+                       , :EMP-LASTNAME
+                       , :EMP-WORKDEPT
+                       , :EMP-PHONENO
+                       , :EMP-HIREDATE
+                       , :EMP-JOB
+                       , :EMP-EDLEVEL
+                       , :EMP-SEX
+                       , :EMP-BIRTHDATE
+                       , :EMP-SALARY
+                       , :EMP-BONUS
+                       , :EMP-COMM
+               END-EXEC
+           END-IF
 
           MOVE SQLCODE TO WS-SQL-STATUS
 
@@ -256,10 +296,17 @@
        OPEN-CURSOR-ALL-EMPS SECTION.
       *>------------------------------------------------------------------------
               DISPLAY "DB2FETCH: CURSOR OPEN"
-           EXEC SQL
-               OPEN CURSOR_ALL_EMPS
-           END-EXEC
-              DISPLAY "DB2FETCH: CURSOR OPEN SQLCODE >> " SQLCODE
+           IF WS-SEL-ALL-EMP
+               EXEC SQL
+                   OPEN CURSOR_ALL_EMP
+               END-EXEC
+           ELSE
+               EXEC SQL
+                   OPEN CURSOR_ONE_EMP
+               END-EXEC
+           END-IF
+
+           DISPLAY "DB2FETCH: CURSOR OPEN SQLCODE >> " SQLCODE
 
           .
        OPEN-CURSOR-ALL-EMPS-EXIT.
@@ -269,9 +316,16 @@
        CLOSE-CURSOR-ALL-EMPS SECTION.
       *>------------------------------------------------------------------------
            DISPLAY "DB2FETCH: CURSOR CLOSE "
-           EXEC SQL
-               CLOSE CURSOR_ALL_EMPS
-           END-EXEC
+
+           IF WS-SEL-ALL-EMP
+               EXEC SQL
+                   CLOSE CURSOR_ALL_EMP
+               END-EXEC
+           ELSE
+               EXEC SQL
+                   CLOSE CURSOR_ONE_EMP
+               END-EXEC
+           END-IF
            DISPLAY "DB2FETCH: CURSOR CLOSE SQLCODE >> " SQLCODE
           .
        CLOSE-CURSOR-ALL-EMPS-EXIT.
