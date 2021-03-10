@@ -86,7 +86,7 @@
        01  SQLA-PROGRAM-ID.
            05 SQL-PART1 pic 9(4) COMP-5 value 172.
            05 SQL-PART2 pic X(6) value "AEAVAI".
-           05 SQL-PART3 pic X(24) value "qAS7HKDl01111 2         ".
+           05 SQL-PART3 pic X(24) value "wA6BIKDl01111 2         ".
            05 SQL-PART4 pic 9(4) COMP-5 value 8.
            05 SQL-PART5 pic X(8) value "DB2INST1".
            05 SQL-PART6 pic X(120) value LOW-VALUES.
@@ -107,6 +107,10 @@
        01 WS-CSR-STATUS                PIC X(01).
           88 CSR-NOT-END-OF-DATA  VALUE 'N'.
           88 CSR-END-OF-DATA      VALUE 'E'.
+
+       01 WS-SEL-TYPE                  PIC X(01).
+          88 WS-SEL-ALL-EMP       VALUE 'N'.
+          88 WS-SEL-ONE-EMP       VALUE 'E'.
 
       *> SQL declare variables
        
@@ -146,8 +150,7 @@
 
 
        01 HV-AREA.
-           05 HV-MAX-EMP            PIC X(6).
-           05 HV-MIN-EMP            PIC X(6).
+           05 HV-EMPNO              PIC X(6).
 
 
        
@@ -156,7 +159,7 @@
 
        
       *EXEC SQL 
-      *DECLARE CURSOR_ALL_EMPS CURSOR FOR
+      *DECLARE CURSOR_ALL_EMP CURSOR FOR
       *      SELECT  EMPNO
       *             ,FIRSTNME
       *             ,MIDINIT
@@ -172,8 +175,29 @@
       *             ,BONUS
       *             ,COMM
       *      FROM EMPLOYEE
-      *      WHERE EMPNO <= :HV-MAX-EMP
-      *        AND EMPNO >= :HV-MIN-EMP
+      *      ORDER BY  EMPNO             ASC
+      * END-EXEC
+                
+
+              
+      *EXEC SQL 
+      *DECLARE CURSOR_ONE_EMP CURSOR FOR
+      *      SELECT  EMPNO
+      *             ,FIRSTNME
+      *             ,MIDINIT
+      *             ,LASTNAME
+      *             ,WORKDEPT
+      *             ,PHONENO
+      *             ,HIREDATE
+      *             ,JOB
+      *             ,EDLEVEL
+      *             ,SEX
+      *             ,BIRTHDATE
+      *             ,SALARY
+      *             ,BONUS
+      *             ,COMM
+      *      FROM EMPLOYEE
+      *      WHERE EMPNO = :HV-EMPNO
       *      ORDER BY  EMPNO             ASC
       * END-EXEC
                 
@@ -227,12 +251,10 @@
                           HV-AREA
 
                IF CPY-EMPNO > SPACES
-                   MOVE CPY-EMPNO              TO EMP-EMPNO
-                   MOVE EMP-EMPNO              TO HV-MIN-EMP
-                                                  HV-MAX-EMP
+                   MOVE CPY-EMPNO              TO HV-EMPNO
+                   SET  WS-SEL-ONE-EMP TO TRUE
                ELSE
-                   MOVE LOW-VALUES             TO HV-MIN-EMP
-                   MOVE HIGH-VALUES            TO HV-MAX-EMP
+                   SET  WS-SEL-ALL-EMP TO TRUE
                END-IF
           .
        MOVE-COPY-TO-HOST-EXIT.
@@ -259,24 +281,25 @@
            DISPLAY "DB2FETCH: SELECT ROW"
            INITIALIZE EMPLOYEE
 
-          
+           IF WS-SEL-ALL-EMP
+               
       *EXEC SQL 
-      *FETCH CURSOR_ALL_EMPS
-      *          INTO :EMP-EMPNO
-      *             , :EMP-FIRSTNME
-      *             , :EMP-MIDINIT
-      *             , :EMP-LASTNAME
-      *             , :EMP-WORKDEPT
-      *             , :EMP-PHONENO
-      *             , :EMP-HIREDATE
-      *             , :EMP-JOB
-      *             , :EMP-EDLEVEL
-      *             , :EMP-SEX
-      *             , :EMP-BIRTHDATE
-      *             , :EMP-SALARY
-      *             , :EMP-BONUS
-      *             , :EMP-COMM
-      *    END-EXEC
+      *FETCH CURSOR_ALL_EMP
+      *              INTO :EMP-EMPNO
+      *                 , :EMP-FIRSTNME
+      *                 , :EMP-MIDINIT
+      *                 , :EMP-LASTNAME
+      *                 , :EMP-WORKDEPT
+      *                 , :EMP-PHONENO
+      *                 , :EMP-HIREDATE
+      *                 , :EMP-JOB
+      *                 , :EMP-EDLEVEL
+      *                 , :EMP-SEX
+      *                 , :EMP-BIRTHDATE
+      *                 , :EMP-SALARY
+      *                 , :EMP-BONUS
+      *                 , :EMP-COMM
+      *         END-EXEC
            CALL "sqlgstrt" USING
               BY CONTENT SQLA-PROGRAM-ID
               BY VALUE 0
@@ -531,6 +554,280 @@
            CALL "sqlgstop" USING
             BY VALUE 0
                                                                         
+           ELSE
+               
+      *EXEC SQL 
+      *FETCH CURSOR_ONE_EMP
+      *              INTO :EMP-EMPNO
+      *                 , :EMP-FIRSTNME
+      *                 , :EMP-MIDINIT
+      *                 , :EMP-LASTNAME
+      *                 , :EMP-WORKDEPT
+      *                 , :EMP-PHONENO
+      *                 , :EMP-HIREDATE
+      *                 , :EMP-JOB
+      *                 , :EMP-EDLEVEL
+      *                 , :EMP-SEX
+      *                 , :EMP-BIRTHDATE
+      *                 , :EMP-SALARY
+      *                 , :EMP-BONUS
+      *                 , :EMP-COMM
+      *         END-EXEC
+           CALL "sqlgstrt" USING
+              BY CONTENT SQLA-PROGRAM-ID
+              BY VALUE 0
+              BY REFERENCE SQLCA
+
+           MOVE 2 TO SQL-STMT-ID 
+           MOVE 14 TO SQLDSIZE 
+           MOVE 3 TO SQLDA-ID 
+
+           CALL "sqlgaloc" USING
+               BY VALUE SQLDA-ID 
+                        SQLDSIZE
+                        SQL-STMT-ID
+                        0
+
+           MOVE 6 TO SQL-HOST-VAR-LENGTH
+           MOVE 452 TO SQL-DATA-TYPE
+           MOVE 0 TO SQLVAR-INDEX
+           MOVE 3 TO SQLDA-ID
+
+           CALL "sqlgstlv" USING 
+            BY VALUE SQLDA-ID
+                     SQLVAR-INDEX
+                     SQL-DATA-TYPE
+                     SQL-HOST-VAR-LENGTH
+            BY REFERENCE EMP-EMPNO
+            OF
+            EMPLOYEE
+            BY VALUE 0
+                     0
+
+           MOVE 12 TO SQL-HOST-VAR-LENGTH
+           MOVE 448 TO SQL-DATA-TYPE
+           MOVE 1 TO SQLVAR-INDEX
+           MOVE 3 TO SQLDA-ID
+
+           CALL "sqlgstlv" USING 
+            BY VALUE SQLDA-ID
+                     SQLVAR-INDEX
+                     SQL-DATA-TYPE
+                     SQL-HOST-VAR-LENGTH
+            BY REFERENCE EMP-FIRSTNME
+            OF
+            EMPLOYEE
+            BY VALUE 0
+                     0
+
+           MOVE 1 TO SQL-HOST-VAR-LENGTH
+           MOVE 452 TO SQL-DATA-TYPE
+           MOVE 2 TO SQLVAR-INDEX
+           MOVE 3 TO SQLDA-ID
+
+           CALL "sqlgstlv" USING 
+            BY VALUE SQLDA-ID
+                     SQLVAR-INDEX
+                     SQL-DATA-TYPE
+                     SQL-HOST-VAR-LENGTH
+            BY REFERENCE EMP-MIDINIT
+            OF
+            EMPLOYEE
+            BY VALUE 0
+                     0
+
+           MOVE 15 TO SQL-HOST-VAR-LENGTH
+           MOVE 448 TO SQL-DATA-TYPE
+           MOVE 3 TO SQLVAR-INDEX
+           MOVE 3 TO SQLDA-ID
+
+           CALL "sqlgstlv" USING 
+            BY VALUE SQLDA-ID
+                     SQLVAR-INDEX
+                     SQL-DATA-TYPE
+                     SQL-HOST-VAR-LENGTH
+            BY REFERENCE EMP-LASTNAME
+            OF
+            EMPLOYEE
+            BY VALUE 0
+                     0
+
+           MOVE 3 TO SQL-HOST-VAR-LENGTH
+           MOVE 452 TO SQL-DATA-TYPE
+           MOVE 4 TO SQLVAR-INDEX
+           MOVE 3 TO SQLDA-ID
+
+           CALL "sqlgstlv" USING 
+            BY VALUE SQLDA-ID
+                     SQLVAR-INDEX
+                     SQL-DATA-TYPE
+                     SQL-HOST-VAR-LENGTH
+            BY REFERENCE EMP-WORKDEPT
+            OF
+            EMPLOYEE
+            BY VALUE 0
+                     0
+
+           MOVE 4 TO SQL-HOST-VAR-LENGTH
+           MOVE 452 TO SQL-DATA-TYPE
+           MOVE 5 TO SQLVAR-INDEX
+           MOVE 3 TO SQLDA-ID
+
+           CALL "sqlgstlv" USING 
+            BY VALUE SQLDA-ID
+                     SQLVAR-INDEX
+                     SQL-DATA-TYPE
+                     SQL-HOST-VAR-LENGTH
+            BY REFERENCE EMP-PHONENO
+            OF
+            EMPLOYEE
+            BY VALUE 0
+                     0
+
+           MOVE 10 TO SQL-HOST-VAR-LENGTH
+           MOVE 452 TO SQL-DATA-TYPE
+           MOVE 6 TO SQLVAR-INDEX
+           MOVE 3 TO SQLDA-ID
+
+           CALL "sqlgstlv" USING 
+            BY VALUE SQLDA-ID
+                     SQLVAR-INDEX
+                     SQL-DATA-TYPE
+                     SQL-HOST-VAR-LENGTH
+            BY REFERENCE EMP-HIREDATE
+            OF
+            EMPLOYEE
+            BY VALUE 0
+                     0
+
+           MOVE 8 TO SQL-HOST-VAR-LENGTH
+           MOVE 452 TO SQL-DATA-TYPE
+           MOVE 7 TO SQLVAR-INDEX
+           MOVE 3 TO SQLDA-ID
+
+           CALL "sqlgstlv" USING 
+            BY VALUE SQLDA-ID
+                     SQLVAR-INDEX
+                     SQL-DATA-TYPE
+                     SQL-HOST-VAR-LENGTH
+            BY REFERENCE EMP-JOB
+            OF
+            EMPLOYEE
+            BY VALUE 0
+                     0
+
+           MOVE 2 TO SQL-HOST-VAR-LENGTH
+           MOVE 500 TO SQL-DATA-TYPE
+           MOVE 8 TO SQLVAR-INDEX
+           MOVE 3 TO SQLDA-ID
+
+           CALL "sqlgstlv" USING 
+            BY VALUE SQLDA-ID
+                     SQLVAR-INDEX
+                     SQL-DATA-TYPE
+                     SQL-HOST-VAR-LENGTH
+            BY REFERENCE EMP-EDLEVEL
+            OF
+            EMPLOYEE
+            BY VALUE 0
+                     0
+
+           MOVE 1 TO SQL-HOST-VAR-LENGTH
+           MOVE 452 TO SQL-DATA-TYPE
+           MOVE 9 TO SQLVAR-INDEX
+           MOVE 3 TO SQLDA-ID
+
+           CALL "sqlgstlv" USING 
+            BY VALUE SQLDA-ID
+                     SQLVAR-INDEX
+                     SQL-DATA-TYPE
+                     SQL-HOST-VAR-LENGTH
+            BY REFERENCE EMP-SEX
+            OF
+            EMPLOYEE
+            BY VALUE 0
+                     0
+
+           MOVE 10 TO SQL-HOST-VAR-LENGTH
+           MOVE 452 TO SQL-DATA-TYPE
+           MOVE 10 TO SQLVAR-INDEX
+           MOVE 3 TO SQLDA-ID
+
+           CALL "sqlgstlv" USING 
+            BY VALUE SQLDA-ID
+                     SQLVAR-INDEX
+                     SQL-DATA-TYPE
+                     SQL-HOST-VAR-LENGTH
+            BY REFERENCE EMP-BIRTHDATE
+            OF
+            EMPLOYEE
+            BY VALUE 0
+                     0
+
+           MOVE 521 TO SQL-HOST-VAR-LENGTH
+           MOVE 484 TO SQL-DATA-TYPE
+           MOVE 11 TO SQLVAR-INDEX
+           MOVE 3 TO SQLDA-ID
+
+           CALL "sqlgstlv" USING 
+            BY VALUE SQLDA-ID
+                     SQLVAR-INDEX
+                     SQL-DATA-TYPE
+                     SQL-HOST-VAR-LENGTH
+            BY REFERENCE EMP-SALARY
+            OF
+            EMPLOYEE
+            BY VALUE 0
+                     0
+
+           MOVE 521 TO SQL-HOST-VAR-LENGTH
+           MOVE 484 TO SQL-DATA-TYPE
+           MOVE 12 TO SQLVAR-INDEX
+           MOVE 3 TO SQLDA-ID
+
+           CALL "sqlgstlv" USING 
+            BY VALUE SQLDA-ID
+                     SQLVAR-INDEX
+                     SQL-DATA-TYPE
+                     SQL-HOST-VAR-LENGTH
+            BY REFERENCE EMP-BONUS
+            OF
+            EMPLOYEE
+            BY VALUE 0
+                     0
+
+           MOVE 521 TO SQL-HOST-VAR-LENGTH
+           MOVE 484 TO SQL-DATA-TYPE
+           MOVE 13 TO SQLVAR-INDEX
+           MOVE 3 TO SQLDA-ID
+
+           CALL "sqlgstlv" USING 
+            BY VALUE SQLDA-ID
+                     SQLVAR-INDEX
+                     SQL-DATA-TYPE
+                     SQL-HOST-VAR-LENGTH
+            BY REFERENCE EMP-COMM
+            OF
+            EMPLOYEE
+            BY VALUE 0
+                     0
+
+           MOVE 3 TO SQL-OUTPUT-SQLDA-ID 
+           MOVE 0 TO SQL-INPUT-SQLDA-ID 
+           MOVE 2 TO SQL-SECTIONUMBER 
+           MOVE 25 TO SQL-CALL-TYPE 
+
+           CALL "sqlgcall" USING
+            BY VALUE SQL-CALL-TYPE 
+                     SQL-SECTIONUMBER
+                     SQL-INPUT-SQLDA-ID
+                     SQL-OUTPUT-SQLDA-ID
+                     0
+
+           CALL "sqlgstop" USING
+            BY VALUE 0
+                                                                        
+           END-IF
 
           MOVE SQLCODE TO WS-SQL-STATUS
 
@@ -588,17 +885,43 @@
        OPEN-CURSOR-ALL-EMPS SECTION.
       *>------------------------------------------------------------------------
               DISPLAY "DB2FETCH: CURSOR OPEN"
-           
+           IF WS-SEL-ALL-EMP
+               
       *EXEC SQL 
-      *OPEN CURSOR_ALL_EMPS
-      *     END-EXEC
+      *OPEN CURSOR_ALL_EMP
+      *         END-EXEC
            CALL "sqlgstrt" USING
               BY CONTENT SQLA-PROGRAM-ID
               BY VALUE 0
               BY REFERENCE SQLCA
 
-           MOVE 2 TO SQL-STMT-ID 
-           MOVE 2 TO SQLDSIZE 
+           MOVE 0 TO SQL-OUTPUT-SQLDA-ID 
+           MOVE 0 TO SQL-INPUT-SQLDA-ID 
+           MOVE 1 TO SQL-SECTIONUMBER 
+           MOVE 26 TO SQL-CALL-TYPE 
+
+           CALL "sqlgcall" USING
+            BY VALUE SQL-CALL-TYPE 
+                     SQL-SECTIONUMBER
+                     SQL-INPUT-SQLDA-ID
+                     SQL-OUTPUT-SQLDA-ID
+                     0
+
+           CALL "sqlgstop" USING
+            BY VALUE 0
+                                                                        
+           ELSE
+               
+      *EXEC SQL 
+      *OPEN CURSOR_ONE_EMP
+      *         END-EXEC
+           CALL "sqlgstrt" USING
+              BY CONTENT SQLA-PROGRAM-ID
+              BY VALUE 0
+              BY REFERENCE SQLCA
+
+           MOVE 3 TO SQL-STMT-ID 
+           MOVE 1 TO SQLDSIZE 
            MOVE 2 TO SQLDA-ID 
 
            CALL "sqlgaloc" USING
@@ -617,23 +940,7 @@
                      SQLVAR-INDEX
                      SQL-DATA-TYPE
                      SQL-HOST-VAR-LENGTH
-            BY REFERENCE HV-MAX-EMP
-            OF
-            HV-AREA
-            BY VALUE 0
-                     0
-
-           MOVE 6 TO SQL-HOST-VAR-LENGTH
-           MOVE 452 TO SQL-DATA-TYPE
-           MOVE 1 TO SQLVAR-INDEX
-           MOVE 2 TO SQLDA-ID
-
-           CALL "sqlgstlv" USING 
-            BY VALUE SQLDA-ID
-                     SQLVAR-INDEX
-                     SQL-DATA-TYPE
-                     SQL-HOST-VAR-LENGTH
-            BY REFERENCE HV-MIN-EMP
+            BY REFERENCE HV-EMPNO
             OF
             HV-AREA
             BY VALUE 0
@@ -641,7 +948,7 @@
 
            MOVE 0 TO SQL-OUTPUT-SQLDA-ID 
            MOVE 2 TO SQL-INPUT-SQLDA-ID 
-           MOVE 1 TO SQL-SECTIONUMBER 
+           MOVE 2 TO SQL-SECTIONUMBER 
            MOVE 26 TO SQL-CALL-TYPE 
 
            CALL "sqlgcall" USING
@@ -654,7 +961,9 @@
            CALL "sqlgstop" USING
             BY VALUE 0
                                                                         
-              DISPLAY "DB2FETCH: CURSOR OPEN SQLCODE >> " SQLCODE
+           END-IF
+
+           DISPLAY "DB2FETCH: CURSOR OPEN SQLCODE >> " SQLCODE
 
           .
        OPEN-CURSOR-ALL-EMPS-EXIT.
@@ -664,10 +973,12 @@
        CLOSE-CURSOR-ALL-EMPS SECTION.
       *>------------------------------------------------------------------------
            DISPLAY "DB2FETCH: CURSOR CLOSE "
-           
+
+           IF WS-SEL-ALL-EMP
+               
       *EXEC SQL 
-      *CLOSE CURSOR_ALL_EMPS
-      *     END-EXEC
+      *CLOSE CURSOR_ALL_EMP
+      *         END-EXEC
            CALL "sqlgstrt" USING
               BY CONTENT SQLA-PROGRAM-ID
               BY VALUE 0
@@ -688,6 +999,32 @@
            CALL "sqlgstop" USING
             BY VALUE 0
                                                                         
+           ELSE
+               
+      *EXEC SQL 
+      *CLOSE CURSOR_ONE_EMP
+      *         END-EXEC
+           CALL "sqlgstrt" USING
+              BY CONTENT SQLA-PROGRAM-ID
+              BY VALUE 0
+              BY REFERENCE SQLCA
+
+           MOVE 0 TO SQL-OUTPUT-SQLDA-ID 
+           MOVE 0 TO SQL-INPUT-SQLDA-ID 
+           MOVE 2 TO SQL-SECTIONUMBER 
+           MOVE 20 TO SQL-CALL-TYPE 
+
+           CALL "sqlgcall" USING
+            BY VALUE SQL-CALL-TYPE 
+                     SQL-SECTIONUMBER
+                     SQL-INPUT-SQLDA-ID
+                     SQL-OUTPUT-SQLDA-ID
+                     0
+
+           CALL "sqlgstop" USING
+            BY VALUE 0
+                                                                        
+           END-IF
            DISPLAY "DB2FETCH: CURSOR CLOSE SQLCODE >> " SQLCODE
           .
        CLOSE-CURSOR-ALL-EMPS-EXIT.
